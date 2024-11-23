@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGatewayDemo.Api", "PaymentGatewayDemo\PaymentGatewayDemo.Api.csproj", "{DFF3F10D-3F1A-4038-B430-5BC067B5811D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGatewayDemo.Api", "PaymentGatewayDemo.Api\PaymentGatewayDemo.Api.csproj", "{DFF3F10D-3F1A-4038-B430-5BC067B5811D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGatewayDemo.Persistance", "PaymentGatewayDemo.Persistance\PaymentGatewayDemo.Persistance.csproj", "{DBF57F98-D7C9-4237-AF85-640DD03090A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGatewayDemo.Domain", "PaymentGatewayDemo.Domain\PaymentGatewayDemo.Domain.csproj", "{74FF1FB3-E1B5-440C-82F9-7106915541C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{DFF3F10D-3F1A-4038-B430-5BC067B5811D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFF3F10D-3F1A-4038-B430-5BC067B5811D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFF3F10D-3F1A-4038-B430-5BC067B5811D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBF57F98-D7C9-4237-AF85-640DD03090A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBF57F98-D7C9-4237-AF85-640DD03090A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBF57F98-D7C9-4237-AF85-640DD03090A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBF57F98-D7C9-4237-AF85-640DD03090A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74FF1FB3-E1B5-440C-82F9-7106915541C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74FF1FB3-E1B5-440C-82F9-7106915541C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74FF1FB3-E1B5-440C-82F9-7106915541C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74FF1FB3-E1B5-440C-82F9-7106915541C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
