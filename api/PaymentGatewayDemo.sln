@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGatewayDemo.Persista
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGatewayDemo.Domain", "PaymentGatewayDemo.Domain\PaymentGatewayDemo.Domain.csproj", "{74FF1FB3-E1B5-440C-82F9-7106915541C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGatewayDemo.Application", "PaymentGatewayDemo.Application\PaymentGatewayDemo.Application.csproj", "{CA82B8AB-3136-408E-9913-652B7E76CF12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGatewayDemo.Infrastructure", "PaymentGatewayDemo.Infrastructure\PaymentGatewayDemo.Infrastructure.csproj", "{9BDB5006-30E8-41DA-8449-6412403A272B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{74FF1FB3-E1B5-440C-82F9-7106915541C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74FF1FB3-E1B5-440C-82F9-7106915541C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74FF1FB3-E1B5-440C-82F9-7106915541C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA82B8AB-3136-408E-9913-652B7E76CF12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA82B8AB-3136-408E-9913-652B7E76CF12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA82B8AB-3136-408E-9913-652B7E76CF12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA82B8AB-3136-408E-9913-652B7E76CF12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BDB5006-30E8-41DA-8449-6412403A272B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BDB5006-30E8-41DA-8449-6412403A272B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BDB5006-30E8-41DA-8449-6412403A272B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BDB5006-30E8-41DA-8449-6412403A272B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

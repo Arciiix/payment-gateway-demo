@@ -1,25 +1,34 @@
 using Microsoft.EntityFrameworkCore;
-using PaymentGatewayDemo.Domain.Models;
+using PaymentGatewayDemo.Api;
+using PaymentGatewayDemo.Api.ExceptionHandlers;
+using PaymentGatewayDemo.Domain.Entities.Configuration;
 using PaymentGatewayDemo.Persistance;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
 
-builder.Services.AddControllers().AddNewtonsoftJson();
-builder.Services.AddAuthorization();
-builder.Services.AddIdentityApiEndpoints<User>()
-    .AddEntityFrameworkStores<BillingDbContext>();
-builder.Services.AddOpenApi();
+services.AddConfiguration();
+services.RegisterValidators();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var config = builder.Configuration.GetSection(GlobalConfiguration.SectionName).Get<GlobalConfiguration>()!;
+services.AddAuthenticationLayer(config);
 
-builder.Services.AddDbContext<BillingDbContext>();
+services.ConfigureControllers();
+services.ConfigureSwaggerExplorer();
+services.AddDataLayer();
+services.AddServices();
+
+services.AddHttpLogging();
+services.AddExceptionHandler<GlobalExceptionHandler>();
+services.AddProblemDetails();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
@@ -29,11 +38,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.MapIdentityApi<User>();
 
+app.UseHttpLogging();
 
 // For development purposes - ensure that the database is created
-
 using var scope = app.Services.CreateScope();
 await using var context = scope.ServiceProvider.GetService<BillingDbContext>();
 
