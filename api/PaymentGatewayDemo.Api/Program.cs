@@ -35,7 +35,7 @@ app.MapIdentityApi<User>();
 // For development purposes - ensure that the database is created
 
 using var scope = app.Services.CreateScope();
-using var context = scope.ServiceProvider.GetService<BillingDbContext>();
+await using var context = scope.ServiceProvider.GetService<BillingDbContext>();
 
 ArgumentNullException.ThrowIfNull(context);
 await context.Database.MigrateAsync();
