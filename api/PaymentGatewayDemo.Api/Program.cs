@@ -17,6 +17,7 @@ services.ConfigureControllers();
 services.ConfigureSwaggerExplorer();
 services.AddDataLayer();
 services.AddServices();
+services.AddHttpClients();
 
 services.AddHttpLogging();
 services.AddExceptionHandler<GlobalExceptionHandler>();

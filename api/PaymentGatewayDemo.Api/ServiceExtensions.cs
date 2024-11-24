@@ -20,7 +20,10 @@ using PaymentGatewayDemo.Domain.Entities.Configuration;
 using PaymentGatewayDemo.Domain.Extensions;
 using PaymentGatewayDemo.Domain.Models;
 using PaymentGatewayDemo.Infrastructure.Services.Auth;
+using PaymentGatewayDemo.Infrastructure.Services.Payments;
 using PaymentGatewayDemo.Persistance;
+using Refit;
+using ProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace PaymentGatewayDemo.Api;
 
@@ -230,6 +233,16 @@ public static class ServiceExtensions
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<IAuthService, AuthService>();
+        services.AddSingleton<PaymentsService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddHttpClients(this IServiceCollection services)
+    {
+        services.AddRefitClient<ITPayApi>(provider => new RefitSettings(
+                new NewtonsoftJsonContentSerializer()))
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://openapi.sandbox.tpay.com"));
 
         return services;
     }
