@@ -96,6 +96,22 @@ public class AuthService : IAuthService
         return await Login(LoginDto.FromRegister(request));
     }
 
+    public async Task<Result<UserResponse, DomainError>> GetUserFromRequest(ClaimsPrincipal userClaims)
+    {
+        var email = userClaims.FindFirstValue(ClaimTypes.Email);
+
+        if (email is null) throw new DomainException(new UserNotFoundError());
+
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null) return new UserNotFoundError();
+
+        return new UserResponse
+        {
+            Email = user.Email
+        };
+    }
+
     private JwtSecurityToken CreateToken(List<Claim> authClaims)
     {
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.JwtConfiguration.Secret));

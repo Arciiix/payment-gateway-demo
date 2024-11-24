@@ -15,18 +15,50 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { userQuery } from "@/queries/auth/user";
 import { RegisterData, registerSchema } from "@/schemas/auth/registerSchema";
+import register from "@/services/auth/register";
+import { User } from "@/types/auth/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { HTTPError } from "ky";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export function RegisterForm() {
   const form = useForm<RegisterData>({
     resolver: zodResolver(registerSchema),
   });
 
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: register,
+    onError: (error) => {
+      console.error(error);
+
+      if (error instanceof HTTPError) {
+        if (error.response.status === 400) {
+          toast.error("Validation errors");
+          return;
+        }
+      }
+
+      toast.error("An error occurred while trying to register.");
+    },
+    onSuccess: (data: User) => {
+      toast.success("Registered!");
+
+      queryClient.setQueryData(userQuery.queryKey, data);
+
+      navigate({ to: "/" });
+    },
+  });
+
   const onSubmit = (data: RegisterData) => {
-    console.log(data);
+    mutate(data);
   };
 
   return (
@@ -89,7 +121,7 @@ export function RegisterForm() {
                   {form.formState.errors.confirmPassword?.message}
                 </FormMessage>
               </FormItem>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isPending}>
                 Register
               </Button>
             </div>

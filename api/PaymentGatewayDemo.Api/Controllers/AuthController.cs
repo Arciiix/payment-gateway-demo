@@ -80,6 +80,18 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("user")]
+    [Authorize]
+    public async Task<ActionResult<UserResponse>> GetUser()
+    {
+        var response = await _authService.GetUserFromRequest(User);
+
+        return response.Match(
+            Ok,
+            failure => new HttpErrorResponse(StatusCodes.Status500InternalServerError, failure).ToActionResult());
+    }
+
+
     private void SetTokenCookie(string accessToken)
     {
         var accessCookieOptions = new CookieOptions

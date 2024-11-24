@@ -485,3 +485,5 @@ $RECYCLE.BIN/
 
 # Local database
 PaymentGatewayDemo.db
+*.db-shm
+*.db-wal

@@ -1,14 +1,15 @@
+import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { LoginForm } from '@/components/auth/login/LoginForm'
+import { RegisterForm } from '@/components/auth/register/RegisterForm'
 
-export const Route = createFileRoute('/auth/login')({
+export const Route = createFileRoute('/auth/_not_authenticated/register')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
   return (
     <div className="flex h-screen w-full items-center justify-center px-4">
-      <LoginForm />
+      <RegisterForm />
     </div>
   )
 }

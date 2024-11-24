@@ -15,18 +15,53 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { userQuery } from "@/queries/auth/user";
 import { LoginData, loginSchema } from "@/schemas/auth/loginSchema";
+import login from "@/services/auth/login";
+import { User } from "@/types/auth/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { HTTPError } from "ky";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export function LoginForm() {
   const form = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
   });
 
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: login,
+    onError: (error) => {
+      console.error(error);
+
+      if (error instanceof HTTPError) {
+        if (error.response.status === 401) {
+          toast.error("Invalid password");
+          return;
+        } else if (error.response.status === 404) {
+          toast.error("Invalid email");
+          return;
+        }
+      }
+
+      toast.error("An error occurred while trying to login.");
+    },
+    onSuccess: (data: User) => {
+      toast.success("Logged in!");
+
+      queryClient.setQueryData(userQuery.queryKey, data);
+
+      navigate({ to: "/" });
+    },
+  });
+
   const onSubmit = (data: LoginData) => {
-    console.log(data);
+    mutate(data);
   };
 
   return (
@@ -72,7 +107,7 @@ export function LoginForm() {
                   {form.formState.errors.password?.message}
                 </FormMessage>
               </FormItem>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={isPending}>
                 Login
               </Button>
             </div>

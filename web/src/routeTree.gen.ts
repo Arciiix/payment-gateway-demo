@@ -13,101 +13,190 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AuthRegisterImport } from './routes/auth/register'
-import { Route as AuthLoginImport } from './routes/auth/login'
+import { Route as AuthenticatedImport } from './routes/_authenticated'
+import { Route as AuthNotauthenticatedImport } from './routes/auth/_not_authenticated'
+import { Route as AuthNotauthenticatedRegisterImport } from './routes/auth/_not_authenticated/register'
+import { Route as AuthNotauthenticatedLoginImport } from './routes/auth/_not_authenticated/login'
 
 // Create Virtual Routes
 
-const IndexLazyImport = createFileRoute('/')()
+const AuthImport = createFileRoute('/auth')()
+const AuthenticatedIndexLazyImport = createFileRoute('/_authenticated/')()
 
 // Create/Update Routes
 
-const IndexLazyRoute = IndexLazyImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
-
-const AuthRegisterRoute = AuthRegisterImport.update({
-  id: '/auth/register',
-  path: '/auth/register',
+const AuthRoute = AuthImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthLoginRoute = AuthLoginImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
+const AuthenticatedRoute = AuthenticatedImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthenticatedIndexLazyRoute = AuthenticatedIndexLazyImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any).lazy(() =>
+  import('./routes/_authenticated/index.lazy').then((d) => d.Route),
+)
+
+const AuthNotauthenticatedRoute = AuthNotauthenticatedImport.update({
+  id: '/_not_authenticated',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthNotauthenticatedRegisterRoute =
+  AuthNotauthenticatedRegisterImport.update({
+    id: '/register',
+    path: '/register',
+    getParentRoute: () => AuthNotauthenticatedRoute,
+  } as any)
+
+const AuthNotauthenticatedLoginRoute = AuthNotauthenticatedLoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthNotauthenticatedRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth/_not_authenticated': {
+      id: '/auth/_not_authenticated'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthNotauthenticatedImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedIndexLazyImport
+      parentRoute: typeof AuthenticatedImport
     }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/auth/login'
+    '/auth/_not_authenticated/login': {
+      id: '/auth/_not_authenticated/login'
+      path: '/login'
       fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthNotauthenticatedLoginImport
+      parentRoute: typeof AuthNotauthenticatedImport
     }
-    '/auth/register': {
-      id: '/auth/register'
-      path: '/auth/register'
+    '/auth/_not_authenticated/register': {
+      id: '/auth/_not_authenticated/register'
+      path: '/register'
       fullPath: '/auth/register'
-      preLoaderRoute: typeof AuthRegisterImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthNotauthenticatedRegisterImport
+      parentRoute: typeof AuthNotauthenticatedImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedIndexLazyRoute: typeof AuthenticatedIndexLazyRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedIndexLazyRoute: AuthenticatedIndexLazyRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
+interface AuthNotauthenticatedRouteChildren {
+  AuthNotauthenticatedLoginRoute: typeof AuthNotauthenticatedLoginRoute
+  AuthNotauthenticatedRegisterRoute: typeof AuthNotauthenticatedRegisterRoute
+}
+
+const AuthNotauthenticatedRouteChildren: AuthNotauthenticatedRouteChildren = {
+  AuthNotauthenticatedLoginRoute: AuthNotauthenticatedLoginRoute,
+  AuthNotauthenticatedRegisterRoute: AuthNotauthenticatedRegisterRoute,
+}
+
+const AuthNotauthenticatedRouteWithChildren =
+  AuthNotauthenticatedRoute._addFileChildren(AuthNotauthenticatedRouteChildren)
+
+interface AuthRouteChildren {
+  AuthNotauthenticatedRoute: typeof AuthNotauthenticatedRouteWithChildren
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthNotauthenticatedRoute: AuthNotauthenticatedRouteWithChildren,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 export interface FileRoutesByFullPath {
-  '/': typeof IndexLazyRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/register': typeof AuthRegisterRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/auth': typeof AuthNotauthenticatedRouteWithChildren
+  '/': typeof AuthenticatedIndexLazyRoute
+  '/auth/login': typeof AuthNotauthenticatedLoginRoute
+  '/auth/register': typeof AuthNotauthenticatedRegisterRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexLazyRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/register': typeof AuthRegisterRoute
+  '/auth': typeof AuthNotauthenticatedRouteWithChildren
+  '/': typeof AuthenticatedIndexLazyRoute
+  '/auth/login': typeof AuthNotauthenticatedLoginRoute
+  '/auth/register': typeof AuthNotauthenticatedRegisterRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexLazyRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/register': typeof AuthRegisterRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
+  '/auth/_not_authenticated': typeof AuthNotauthenticatedRouteWithChildren
+  '/_authenticated/': typeof AuthenticatedIndexLazyRoute
+  '/auth/_not_authenticated/login': typeof AuthNotauthenticatedLoginRoute
+  '/auth/_not_authenticated/register': typeof AuthNotauthenticatedRegisterRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/login' | '/auth/register'
+  fullPaths: '' | '/auth' | '/' | '/auth/login' | '/auth/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/login' | '/auth/register'
-  id: '__root__' | '/' | '/auth/login' | '/auth/register'
+  to: '/auth' | '/' | '/auth/login' | '/auth/register'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/auth'
+    | '/auth/_not_authenticated'
+    | '/_authenticated/'
+    | '/auth/_not_authenticated/login'
+    | '/auth/_not_authenticated/register'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute
-  AuthLoginRoute: typeof AuthLoginRoute
-  AuthRegisterRoute: typeof AuthRegisterRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AuthRoute: typeof AuthRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
-  AuthLoginRoute: AuthLoginRoute,
-  AuthRegisterRoute: AuthRegisterRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AuthRoute: AuthRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -120,19 +209,41 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/auth/login",
-        "/auth/register"
+        "/_authenticated",
+        "/auth"
       ]
     },
-    "/": {
-      "filePath": "index.lazy.tsx"
+    "/_authenticated": {
+      "filePath": "_authenticated.tsx",
+      "children": [
+        "/_authenticated/"
+      ]
     },
-    "/auth/login": {
-      "filePath": "auth/login.tsx"
+    "/auth": {
+      "filePath": "auth",
+      "children": [
+        "/auth/_not_authenticated"
+      ]
     },
-    "/auth/register": {
-      "filePath": "auth/register.tsx"
+    "/auth/_not_authenticated": {
+      "filePath": "auth/_not_authenticated.tsx",
+      "parent": "/auth",
+      "children": [
+        "/auth/_not_authenticated/login",
+        "/auth/_not_authenticated/register"
+      ]
+    },
+    "/_authenticated/": {
+      "filePath": "_authenticated/index.lazy.ts",
+      "parent": "/_authenticated"
+    },
+    "/auth/_not_authenticated/login": {
+      "filePath": "auth/_not_authenticated/login.tsx",
+      "parent": "/auth/_not_authenticated"
+    },
+    "/auth/_not_authenticated/register": {
+      "filePath": "auth/_not_authenticated/register.tsx",
+      "parent": "/auth/_not_authenticated"
     }
   }
 }
