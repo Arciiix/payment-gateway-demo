@@ -1,4 +1,5 @@
 import { NavUser } from "@/components/blocks/NavUser";
+import Products from "@/components/products/Products";
 import { createLazyFileRoute } from "@tanstack/react-router";
 
 export const Route = createLazyFileRoute("/_authenticated/")({
@@ -20,7 +21,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <h1>Billing information</h1>
+      <Products />
     </div>
   );
 }

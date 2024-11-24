@@ -14,4 +14,7 @@ public interface ITPayApi
     [Get("/transactions/{transactionId}")]
     Task<ApiResponse<TransactionResponse>> GetTransaction(string transactionId,
         [Header("Authorization")] string authorization);
+
+    [Post("/transactions/{transactionId}/refunds")]
+    Task<ApiResponse<object>> RefundTransaction(string transactionId, [Header("Authorization")] string authorization);
 }

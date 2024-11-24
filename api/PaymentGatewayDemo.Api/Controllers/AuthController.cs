@@ -87,7 +87,10 @@ public class AuthController : ControllerBase
         var response = await _authService.GetUserFromRequest(User);
 
         return response.Match(
-            Ok,
+            e => Ok(new UserResponse
+            {
+                Email = e.Email
+            }),
             failure => new HttpErrorResponse(StatusCodes.Status500InternalServerError, failure).ToActionResult());
     }
 

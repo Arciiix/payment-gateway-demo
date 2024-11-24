@@ -48,6 +48,14 @@ public class PaymentsService
         return response.Content;
     }
 
+    public async Task RefundTransactionAsync(string transactionId)
+    {
+        var response = await _api.RefundTransaction(transactionId, await GetAuthorization()).ConfigureAwait(false);
+
+        if (!response.IsSuccessStatusCode)
+            _logger.LogError("Failed to refund transaction: {StatusCode}", response.StatusCode);
+    }
+
     private async Task<string> GetAuthorization()
     {
         if (Token != null && Token.expires > DateTime.Now) return "Bearer " + Token.token;

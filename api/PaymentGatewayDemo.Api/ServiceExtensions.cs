@@ -16,11 +16,13 @@ using PaymentGatewayDemo.Api.Filters.Exception;
 using PaymentGatewayDemo.Api.Helpers;
 using PaymentGatewayDemo.Application.DTOs.Auth.Requests;
 using PaymentGatewayDemo.Application.Services.Auth;
+using PaymentGatewayDemo.Application.Services.Products;
 using PaymentGatewayDemo.Domain.Entities.Configuration;
 using PaymentGatewayDemo.Domain.Extensions;
 using PaymentGatewayDemo.Domain.Models;
 using PaymentGatewayDemo.Infrastructure.Services.Auth;
 using PaymentGatewayDemo.Infrastructure.Services.Payments;
+using PaymentGatewayDemo.Infrastructure.Services.Products;
 using PaymentGatewayDemo.Persistance;
 using Refit;
 using ProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
@@ -233,6 +235,7 @@ public static class ServiceExtensions
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IProductsService, ProductsService>();
         services.AddSingleton<PaymentsService>();
 
         return services;

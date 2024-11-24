@@ -49,6 +49,7 @@ public class AuthService : IAuthService
 
         var authClaims = new List<Claim>
         {
+            new(ClaimTypes.Name, user.Id),
             new(ClaimTypes.Email, user.Email),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
@@ -93,10 +94,32 @@ public class AuthService : IAuthService
 
         _logger.LogInformation("User created: {Email}", user.Email);
 
+        await _db.Products.AddRangeAsync(new Product
+        {
+            Id = Guid.NewGuid(),
+            Description = "Product description",
+            TransactionId = null,
+            OwnsProduct = false,
+            ProductId = "test1",
+            TransactionStatus = null,
+            Price = 10000,
+            UserId = user.Id,
+            Title = "Test product"
+        });
+
+        await _db.SaveChangesAsync();
+
         return await Login(LoginDto.FromRegister(request));
     }
 
-    public async Task<Result<UserResponse, DomainError>> GetUserFromRequest(ClaimsPrincipal userClaims)
+    public string GetUserIdFromRequest(ClaimsPrincipal userClaims)
+    {
+        var id = userClaims.FindFirstValue(ClaimTypes.Name);
+        if (id is null) throw new DomainException(new UserNotFoundError());
+        return id;
+    }
+
+    public async Task<Result<User, DomainError>> GetUserFromRequest(ClaimsPrincipal userClaims)
     {
         var email = userClaims.FindFirstValue(ClaimTypes.Email);
 
@@ -106,10 +129,7 @@ public class AuthService : IAuthService
 
         if (user is null) return new UserNotFoundError();
 
-        return new UserResponse
-        {
-            Email = user.Email
-        };
+        return user;
     }
 
     private JwtSecurityToken CreateToken(List<Claim> authClaims)

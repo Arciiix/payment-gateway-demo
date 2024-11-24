@@ -11,7 +11,7 @@ using PaymentGatewayDemo.Persistance;
 namespace PaymentGatewayDemo.Persistance.Migrations
 {
     [DbContext(typeof(BillingDbContext))]
-    [Migration("20241123153723_InitialCreate")]
+    [Migration("20241124222609_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -148,6 +148,47 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("OwnsProduct")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TransactionStatus")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Products");
+                });
+
             modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -261,6 +302,22 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.Product", b =>
+                {
+                    b.HasOne("PaymentGatewayDemo.Domain.Models.User", "User")
+                        .WithMany("Products")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.User", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }
