@@ -25,6 +25,9 @@ const AuthenticatedIndexLazyImport = createFileRoute('/_authenticated/')()
 const AuthenticatedPaymentSuccessLazyImport = createFileRoute(
   '/_authenticated/payment/success',
 )()
+const AuthenticatedPaymentErrorLazyImport = createFileRoute(
+  '/_authenticated/payment/error',
+)()
 
 // Create/Update Routes
 
@@ -59,6 +62,15 @@ const AuthenticatedPaymentSuccessLazyRoute =
     getParentRoute: () => AuthenticatedRoute,
   } as any).lazy(() =>
     import('./routes/_authenticated/payment/success.lazy').then((d) => d.Route),
+  )
+
+const AuthenticatedPaymentErrorLazyRoute =
+  AuthenticatedPaymentErrorLazyImport.update({
+    id: '/payment/error',
+    path: '/payment/error',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any).lazy(() =>
+    import('./routes/_authenticated/payment/error.lazy').then((d) => d.Route),
   )
 
 const AuthNotauthenticatedRegisterRoute =
@@ -120,6 +132,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthNotauthenticatedRegisterImport
       parentRoute: typeof AuthNotauthenticatedImport
     }
+    '/_authenticated/payment/error': {
+      id: '/_authenticated/payment/error'
+      path: '/payment/error'
+      fullPath: '/payment/error'
+      preLoaderRoute: typeof AuthenticatedPaymentErrorLazyImport
+      parentRoute: typeof AuthenticatedImport
+    }
     '/_authenticated/payment/success': {
       id: '/_authenticated/payment/success'
       path: '/payment/success'
@@ -134,11 +153,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedIndexLazyRoute: typeof AuthenticatedIndexLazyRoute
+  AuthenticatedPaymentErrorLazyRoute: typeof AuthenticatedPaymentErrorLazyRoute
   AuthenticatedPaymentSuccessLazyRoute: typeof AuthenticatedPaymentSuccessLazyRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIndexLazyRoute: AuthenticatedIndexLazyRoute,
+  AuthenticatedPaymentErrorLazyRoute: AuthenticatedPaymentErrorLazyRoute,
   AuthenticatedPaymentSuccessLazyRoute: AuthenticatedPaymentSuccessLazyRoute,
 }
 
@@ -175,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexLazyRoute
   '/auth/login': typeof AuthNotauthenticatedLoginRoute
   '/auth/register': typeof AuthNotauthenticatedRegisterRoute
+  '/payment/error': typeof AuthenticatedPaymentErrorLazyRoute
   '/payment/success': typeof AuthenticatedPaymentSuccessLazyRoute
 }
 
@@ -183,6 +205,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexLazyRoute
   '/auth/login': typeof AuthNotauthenticatedLoginRoute
   '/auth/register': typeof AuthNotauthenticatedRegisterRoute
+  '/payment/error': typeof AuthenticatedPaymentErrorLazyRoute
   '/payment/success': typeof AuthenticatedPaymentSuccessLazyRoute
 }
 
@@ -194,6 +217,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexLazyRoute
   '/auth/_not_authenticated/login': typeof AuthNotauthenticatedLoginRoute
   '/auth/_not_authenticated/register': typeof AuthNotauthenticatedRegisterRoute
+  '/_authenticated/payment/error': typeof AuthenticatedPaymentErrorLazyRoute
   '/_authenticated/payment/success': typeof AuthenticatedPaymentSuccessLazyRoute
 }
 
@@ -205,9 +229,16 @@ export interface FileRouteTypes {
     | '/'
     | '/auth/login'
     | '/auth/register'
+    | '/payment/error'
     | '/payment/success'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/' | '/auth/login' | '/auth/register' | '/payment/success'
+  to:
+    | '/auth'
+    | '/'
+    | '/auth/login'
+    | '/auth/register'
+    | '/payment/error'
+    | '/payment/success'
   id:
     | '__root__'
     | '/_authenticated'
@@ -216,6 +247,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/auth/_not_authenticated/login'
     | '/auth/_not_authenticated/register'
+    | '/_authenticated/payment/error'
     | '/_authenticated/payment/success'
   fileRoutesById: FileRoutesById
 }
@@ -248,6 +280,7 @@ export const routeTree = rootRoute
       "filePath": "_authenticated.tsx",
       "children": [
         "/_authenticated/",
+        "/_authenticated/payment/error",
         "/_authenticated/payment/success"
       ]
     },
@@ -276,6 +309,10 @@ export const routeTree = rootRoute
     "/auth/_not_authenticated/register": {
       "filePath": "auth/_not_authenticated/register.tsx",
       "parent": "/auth/_not_authenticated"
+    },
+    "/_authenticated/payment/error": {
+      "filePath": "_authenticated/payment/error.lazy.tsx",
+      "parent": "/_authenticated"
     },
     "/_authenticated/payment/success": {
       "filePath": "_authenticated/payment/success.lazy.tsx",
