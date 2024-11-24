@@ -1,3 +1,4 @@
+import { queryClient } from "@/main";
 import { userQuery } from "@/queries/auth/user";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -9,7 +10,8 @@ import {
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated")({
-  beforeLoad: ({ context }) => {
+  beforeLoad: async ({ context }) => {
+    await queryClient.ensureQueryData(userQuery);
     if (context.user === null) {
       throw redirect({
         to: "/auth/login",

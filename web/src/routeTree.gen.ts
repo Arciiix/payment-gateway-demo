@@ -234,7 +234,7 @@ export const routeTree = rootRoute
       ]
     },
     "/_authenticated/": {
-      "filePath": "_authenticated/index.lazy.ts",
+      "filePath": "_authenticated/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/auth/_not_authenticated/login": {

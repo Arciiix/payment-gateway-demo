@@ -12,7 +12,7 @@ type MyRouterContext = {
 };
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-  beforeLoad: () => queryClient.ensureQueryData(userQuery),
+  beforeLoad: async () => await queryClient.ensureQueryData(userQuery),
   wrapInSuspense: true,
   pendingComponent: () => <Loading />,
   component: () => (
