@@ -68,7 +68,7 @@ export default function Product({
         <div className="space-y-1">
           <CardTitle className="flex flex-col space-y-2">
             <span>{title}</span>
-            <span className="text-xl">${(price / 100).toFixed(2)}</span>
+            <span className="text-xl">{(price / 100).toFixed(2)} zł</span>
           </CardTitle>
           <CardDescription className="flex flex-col">
             <span>ID: {id}</span>
@@ -88,10 +88,12 @@ export default function Product({
           </AccordionItem>
         </Accordion>
 
-        <div className="flex flex-col space-y-4 mt-6 text-xl text-white">
+        <div className="flex flex-col space-y-4 mt-6 text-lg text-white">
           <div className="flex items-center">
-            <Circle className="mr-1 h-4 w-4 fill-green-400 text-green-400" />
-            {paymentStatus}
+            <Circle
+              className={`mr-1 h-4 w-4 ${ownsProduct ? "fill-green-400 text-green-400" : "fill-gray-700 text-gray-700"}`}
+            />
+            {paymentStatus ?? "no data"}
           </div>
           {ownsProduct ? (
             <Button onClick={() => refund({ id })} disabled={isRefunding}>

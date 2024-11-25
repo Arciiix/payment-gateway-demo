@@ -26,6 +26,8 @@ export function NotAuthenticatedComponent() {
 
   useEffect(() => {
     if (user) {
+      console.log("User is logged in, navigate to /");
+
       navigate({
         to: "/",
       });

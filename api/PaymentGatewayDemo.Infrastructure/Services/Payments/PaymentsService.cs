@@ -53,7 +53,9 @@ public class PaymentsService
         var response = await _api.RefundTransaction(transactionId, await GetAuthorization()).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
-            _logger.LogError("Failed to refund transaction: {StatusCode}", response.StatusCode);
+        {
+            _logger.LogError("Failed to refund transaction: {StatusCode} - {Content}", response.StatusCode, response.Content);
+        }
     }
 
     private async Task<string> GetAuthorization()

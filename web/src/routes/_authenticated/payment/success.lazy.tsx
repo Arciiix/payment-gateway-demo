@@ -1,5 +1,7 @@
 import * as React from "react";
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { createLazyFileRoute, Link } from "@tanstack/react-router";
+import { CheckIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createLazyFileRoute("/_authenticated/payment/success")({
   component: RouteComponent,
@@ -7,21 +9,22 @@ export const Route = createLazyFileRoute("/_authenticated/payment/success")({
 
 function RouteComponent() {
   return (
-    <div className="bg-gray-100 h-screen">
-      <div className="bg-white p-6  md:mx-auto">
-        <svg
-          viewBox="0 0 24 24"
-          className="text-green-600 w-16 h-16 mx-auto my-6"
-        >
-          <path
-            fill="currentColor"
-            d="M12,0A12,12,0,1,0,24,12,12.014,12.014,0,0,0,12,0Zm6.927,8.2-6.845,9.289a1.011,1.011,0,0,1-1.43.188L5.764,13.769a1,1,0,1,1,1.25-1.562l4.076,3.261,6.227-8.451A1,1,0,1,1,18.927,8.2Z"
-          ></path>
-        </svg>
-        <div className="text-center">
-          <h3 className="md:text-2xl text-base text-gray-900 font-semibold text-center">
-            Payment Done!
-          </h3>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black p-4">
+      <div className="bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full">
+        <div className="flex flex-col items-center">
+          <div className="bg-green-100 rounded-full p-3 mb-4">
+            <CheckIcon size={32} color="black" />
+          </div>
+          <h1 className="text-2xl font-semibold text-white mb-2">
+            Payment Successful
+          </h1>
+          <p className="text-gray-100 mb-4 text-center">
+            Thank you for your payment. Your transaction has been completed
+            successfully.
+          </p>
+          <Link to="/">
+            <Button>Go to dashboard</Button>
+          </Link>
         </div>
       </div>
     </div>

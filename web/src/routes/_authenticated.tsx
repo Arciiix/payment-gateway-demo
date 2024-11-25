@@ -24,12 +24,15 @@ export const Route = createFileRoute("/_authenticated")({
 export function AuthenticatedComponent() {
   const navigate = useNavigate();
 
-  const user = useQuery(userQuery);
+  const { data: user } = useQuery(userQuery);
 
   useEffect(() => {
-    navigate({
-      to: "/auth/login",
-    });
+    if (!user) {
+      console.log("No user, navigate to login...");
+      navigate({
+        to: "/auth/login",
+      });
+    }
   }, [user, navigate]);
 
   return <Outlet />;

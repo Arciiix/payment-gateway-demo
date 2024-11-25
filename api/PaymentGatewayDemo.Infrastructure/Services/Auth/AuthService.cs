@@ -105,6 +105,28 @@ public class AuthService : IAuthService
             Price = 10000,
             UserId = user.Id,
             Title = "Test product"
+        }, new Product
+        {
+            Id = Guid.NewGuid(),
+            Title = "Test product 2",
+            Description = "Product description 2",
+            TransactionId = null,
+            OwnsProduct = false,
+            ProductId = "test2",
+            TransactionStatus = null,
+            Price = 123321,
+            UserId = user.Id
+        }, new Product
+        {
+            Id = Guid.NewGuid(),
+            Title = "Test product 3",
+            Description = "Product description 3",
+            TransactionId = null,
+            OwnsProduct = false,
+            ProductId = "test3",
+            TransactionStatus = null,
+            Price = 99,
+            UserId = user.Id
         });
 
         await _db.SaveChangesAsync();
