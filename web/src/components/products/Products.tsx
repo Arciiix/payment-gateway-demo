@@ -1,7 +1,6 @@
+import fetchProducts from "@/services/product/fetchProducts";
 import { useQuery } from "@tanstack/react-query";
 import Product from "./Product";
-import fetchProducts from "@/services/product/fetchProducts";
-import { Skeleton } from "../ui/skeleton";
 import ProductSkeleton from "./ProductSkeleton";
 
 export default function Products() {
