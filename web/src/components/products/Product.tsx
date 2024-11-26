@@ -63,6 +63,22 @@ export default function Product({
     },
   });
 
+  const getColorForState = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "pending":
+        return "fill-yellow-400 text-yellow-400";
+      case "correct":
+        return "fill-green-400 text-green-400";
+      case "init":
+        return "fill-blue-400 text-blue-400";
+      case "refunded":
+      case "refund":
+        return "fill-red-400 text-red-400";
+      default:
+        return "fill-gray-400 text-gray-400";
+    }
+  };
+
   return (
     <Card className={`w-max ${ownsProduct ? "border-green-300" : ""}`}>
       <CardHeader className="gap-4 space-y-0">
@@ -95,7 +111,7 @@ export default function Product({
         <div className="flex flex-col space-y-4 mt-6 text-lg text-white">
           <div className="flex items-center">
             <Circle
-              className={`mr-1 h-4 w-4 ${ownsProduct ? "fill-green-400 text-green-400" : "fill-gray-700 text-gray-700"}`}
+              className={`mr-1 h-4 w-4 ${getColorForState(paymentStatus)}`}
             />
             {paymentStatus ?? "no payment"}
           </div>
