@@ -4,6 +4,8 @@ namespace PaymentGatewayDemo.Domain.Models;
 
 public class Product
 {
+    public ICollection<Billing>? Billings;
+
     [Key] public Guid Id { get; set; }
 
     public string ProductId { get; set; }
@@ -16,6 +18,8 @@ public class Product
     public string UserId { get; set; }
 
     public bool OwnsProduct { get; set; } = false;
+
+
     public string? TransactionId { get; set; }
     public string? TransactionStatus { get; set; }
 }

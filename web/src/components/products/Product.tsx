@@ -35,6 +35,7 @@ export default function Product({
   title,
   description,
   price,
+  id: keyId,
   productId: id,
   paymentStatus,
   ownsProduct,
@@ -72,6 +73,7 @@ export default function Product({
           </CardTitle>
           <CardDescription className="flex flex-col">
             <span>ID: {id}</span>
+            <b>Key ID: {keyId}</b>
             <span>{description}</span>
           </CardDescription>
         </div>

@@ -52,6 +52,16 @@ public class ProductsService : IProductsService
                     {
                         product.TransactionStatus = transactionStatus.Status;
                         product.OwnsProduct = transactionStatus.Status == "correct";
+
+                        var billing = await _context.Billings.FirstAsync(e => e.TransactionId == product.TransactionId);
+                        billing.Status = transactionStatus.Status;
+                        billing.RealizationDate = !string.IsNullOrEmpty(transactionStatus.Date.Realization)
+                            ? DateTimeOffset.Parse(transactionStatus.Date.Realization)
+                            : null;
+
+                        _context.Billings.Update(billing);
+                        await _context.SaveChangesAsync();
+
                         await UpdateProduct(product);
                     }
 
@@ -112,6 +122,27 @@ public class ProductsService : IProductsService
         await UpdateProduct(product);
     }
 
+    public async Task<Dictionary<string, List<Billing>>> GetBillingsForProducts(string userId)
+    {
+        var products = await GetProducts(userId);
+        var productIds = products.Select(p => p.Id).ToList();
+
+        var allBillings = await _context.Billings
+            .Where(b => productIds.Contains(b.ProductKeyId))
+            .ToListAsync();
+
+        var billings = products.ToDictionary(
+            product => product.ProductId,
+            product => allBillings.Where(b => b.ProductKeyId == product.Id).Select(billing =>
+            {
+                billing.Product = null;
+                return billing;
+            }).ToList());
+
+
+        return billings;
+    }
+
     public async Task<string> BuyProduct(User user, string productId)
     {
         var product = await _context.Products.FirstAsync(e => e.UserId == user.Id && e.ProductId == productId);
@@ -147,6 +178,20 @@ public class ProductsService : IProductsService
         product.TransactionStatus = "init";
         product.TransactionId = response.TransactionId;
         await UpdateProduct(product);
+
+        await _context.Billings.AddAsync(
+            new Billing
+            {
+                ProductKeyId = product.Id,
+                Title = product.Title,
+                Price = (decimal)product.Price / 100,
+                UserId = user.Id,
+                CreationDate = DateTimeOffset.Now,
+                TransactionId = response.TransactionId,
+                Status = "init"
+            });
+
+        await _context.SaveChangesAsync();
 
         return response.TransactionPaymentUrl;
     }

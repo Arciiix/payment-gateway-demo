@@ -12,4 +12,6 @@ public interface IProductsService
     // Returns the redirection URL
     public Task<string> BuyProduct(User user, string productId);
     public Task RefundProduct(string userId, string productId);
+
+    Task<Dictionary<string, List<Billing>>> GetBillingsForProducts(string userId);
 }

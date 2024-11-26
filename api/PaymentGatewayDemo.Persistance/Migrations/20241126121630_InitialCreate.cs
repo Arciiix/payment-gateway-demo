@@ -181,6 +181,35 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Billings",
+                columns: table => new
+                {
+                    TransactionId = table.Column<string>(type: "TEXT", nullable: false),
+                    ProductKeyId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", nullable: false),
+                    Price = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Status = table.Column<string>(type: "TEXT", nullable: false),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    CreationDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    RealizationDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Billings", x => x.TransactionId);
+                    table.ForeignKey(
+                        name: "FK_Billings_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Billings_Products_ProductKeyId",
+                        column: x => x.ProductKeyId,
+                        principalTable: "Products",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -219,6 +248,16 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Billings_ProductKeyId",
+                table: "Billings",
+                column: "ProductKeyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Billings_UserId",
+                table: "Billings",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_UserId",
                 table: "Products",
                 column: "UserId");
@@ -243,10 +282,13 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "Billings");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

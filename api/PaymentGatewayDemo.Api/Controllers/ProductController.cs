@@ -33,7 +33,7 @@ public class ProductController : ControllerBase
     {
         // / - returns the data that is stored in the database without any external requests to the external payment gateway API
         var userId = _authService.GetUserIdFromRequest(User);
-        return await _productsService.GetProductsForUser(userId, false);
+        return await _productsService.GetProductsForUser(userId);
     }
 
     [HttpGet("new")]
@@ -69,5 +69,16 @@ public class ProductController : ControllerBase
         await _productsService.RefundProduct(userId, productId);
 
         return Ok();
+    }
+
+    [HttpGet("billings")]
+    [Authorize]
+    public async Task<Dictionary<string, List<Billing>>> GetBillingsForProducts()
+    {
+        var userId = _authService.GetUserIdFromRequest(User);
+
+        var result = await _productsService.GetBillingsForProducts(userId);
+
+        return result;
     }
 }

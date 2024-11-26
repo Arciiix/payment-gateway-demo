@@ -145,6 +145,44 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.Billing", b =>
+                {
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreationDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ProductKeyId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("RealizationDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TransactionId");
+
+                    b.HasIndex("ProductKeyId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Billings");
+                });
+
             modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -301,6 +339,23 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.Billing", b =>
+                {
+                    b.HasOne("PaymentGatewayDemo.Domain.Models.Product", "Product")
+                        .WithMany("Billings")
+                        .HasForeignKey("ProductKeyId");
+
+                    b.HasOne("PaymentGatewayDemo.Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.Product", b =>
                 {
                     b.HasOne("PaymentGatewayDemo.Domain.Models.User", "User")
@@ -310,6 +365,11 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.Product", b =>
+                {
+                    b.Navigation("Billings");
                 });
 
             modelBuilder.Entity("PaymentGatewayDemo.Domain.Models.User", b =>

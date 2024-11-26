@@ -10,6 +10,7 @@ public class BillingDbContext : IdentityDbContext<User>
     private static readonly string DbPath = "PaymentGatewayDemo.db";
 
     public DbSet<Product> Products { get; set; }
+    public DbSet<Billing> Billings { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -20,6 +21,12 @@ public class BillingDbContext : IdentityDbContext<User>
             .HasOne(p => p.User)
             .WithMany(u => u.Products)
             .HasForeignKey(p => p.UserId);
+
+        builder.Entity<Product>()
+            .HasMany(p => p.Billings)
+            .WithOne(b => b.Product)
+            .HasForeignKey(b => b.ProductKeyId)
+            .IsRequired(false);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
