@@ -249,4 +249,22 @@ public static class ServiceExtensions
 
         return services;
     }
+
+    public static WebApplication UseFrontend(this WebApplication app)
+    {
+        var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
+        if (isDevelopment)
+            app.MapWhen(x => x.Request.Path.Value != null && !x.Request.Path.Value.StartsWith("/api"),
+                builder =>
+                {
+                    builder.UseSpa(
+                        spaBuilder => { spaBuilder.UseProxyToSpaDevelopmentServer("http://localhost:5173"); });
+                });
+        else
+            // Serve static files from wwwroot
+            app.UseStaticFiles();
+
+        return app;
+    }
 }

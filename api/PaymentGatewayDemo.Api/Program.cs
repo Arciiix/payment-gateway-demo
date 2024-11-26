@@ -38,8 +38,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseFrontend();
 app.MapControllers();
-
 app.UseHttpLogging();
 
 // For development purposes - ensure that the database is created
