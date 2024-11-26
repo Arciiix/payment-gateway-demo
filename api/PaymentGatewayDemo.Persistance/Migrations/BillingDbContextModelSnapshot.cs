@@ -153,6 +153,10 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                     b.Property<DateTimeOffset>("CreationDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("FriendlyTitle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
 

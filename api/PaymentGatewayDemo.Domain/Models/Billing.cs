@@ -10,6 +10,7 @@ public class Billing
     public Product? Product { get; set; } = null;
 
     public string Title { get; set; }
+    public string FriendlyTitle { get; set; }
     public decimal Price { get; set; }
     public string Status { get; set; }
 

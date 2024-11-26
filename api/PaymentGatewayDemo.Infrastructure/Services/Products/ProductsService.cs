@@ -137,7 +137,7 @@ public class ProductsService : IProductsService
             {
                 billing.Product = null;
                 return billing;
-            }).ToList());
+            }).Reverse().ToList());
 
 
         return billings;
@@ -164,7 +164,8 @@ public class ProductsService : IProductsService
             {
                 Notification = new Notification
                 {
-                    Email = user.Email
+                    Email = user.Email,
+                    Url = "NGROK/api/paymentNotifications" // TODO DEV
                 },
                 PayerUrls = new PayerUrls
                 {
@@ -183,7 +184,8 @@ public class ProductsService : IProductsService
             new Billing
             {
                 ProductKeyId = product.Id,
-                Title = product.Title,
+                Title = response.Title,
+                FriendlyTitle = product.Title,
                 Price = (decimal)product.Price / 100,
                 UserId = user.Id,
                 CreationDate = DateTimeOffset.Now,

@@ -1,8 +1,11 @@
 using System.Net;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaymentGatewayDemo.Application.TPay.Models;
 using PaymentGatewayDemo.Domain.Entities.Configuration;
+using PaymentGatewayDemo.Persistance;
 
 namespace PaymentGatewayDemo.Infrastructure.Services.Payments;
 
@@ -11,13 +14,16 @@ public class PaymentsService
     private readonly ITPayApi _api;
     private readonly TPayConfiguration _configuration;
     private readonly ILogger<PaymentsService> _logger;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     private TToken? token;
 
-    public PaymentsService(ITPayApi api, IOptions<GlobalConfiguration> config, ILogger<PaymentsService> logger)
+    public PaymentsService(ITPayApi api, IOptions<GlobalConfiguration> config, IServiceScopeFactory scopeFactory,
+        ILogger<PaymentsService> logger)
     {
         _api = api;
         _logger = logger;
+        _scopeFactory = scopeFactory;
         _configuration = config.Value.TPayConfiguration;
     }
 
@@ -86,6 +92,63 @@ public class PaymentsService
 
         token = new TToken(response.Content.AccessToken, DateTime.Now.AddSeconds(response.Content.ExpiresIn));
         return token;
+    }
+
+    public async Task HandleNotification(string transactionId, string status)
+    {
+        // We receive the notification from the external payment gateway
+
+        // Here for some reason the transactionId is more likely to be transaction title
+        // TODO: Investigate why
+
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
+
+        var billing =
+            await context.Billings.FirstOrDefaultAsync(
+                e => e.TransactionId == transactionId || e.Title == transactionId);
+
+        if (billing is null)
+        {
+            _logger.LogWarning("Received notification for unknown transaction: {TransactionId}", transactionId);
+            return;
+        }
+
+        billing.Status = status switch
+        {
+            "PAID" or "TRUE" => "correct",
+            "CHARGEBACK" => "refunded",
+            _ => status
+        };
+
+        await using var transaction = await context.Database.BeginTransactionAsync();
+
+        try
+        {
+            context.Billings.Update(billing);
+            var product = context.Products.FirstOrDefault(e => e.TransactionId == billing.TransactionId);
+
+            if (product != null)
+            {
+                product.TransactionStatus = billing.Status;
+                product.OwnsProduct = billing.Status == "correct";
+                context.Products.Update(product);
+            }
+            else
+            {
+                _logger.LogWarning("No product found for transaction: {TransactionId}", transactionId);
+            }
+
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            _logger.LogInformation("Updated transaction status for transaction: {TransactionId}", transactionId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to update transaction status");
+            await transaction.RollbackAsync();
+        }
     }
 
     public record TToken(string token, DateTime expires);

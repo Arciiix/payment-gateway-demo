@@ -188,6 +188,7 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                     TransactionId = table.Column<string>(type: "TEXT", nullable: false),
                     ProductKeyId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Title = table.Column<string>(type: "TEXT", nullable: false),
+                    FriendlyTitle = table.Column<string>(type: "TEXT", nullable: false),
                     Price = table.Column<decimal>(type: "TEXT", nullable: false),
                     Status = table.Column<string>(type: "TEXT", nullable: false),
                     UserId = table.Column<string>(type: "TEXT", nullable: false),

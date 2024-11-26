@@ -11,7 +11,7 @@ using PaymentGatewayDemo.Persistance;
 namespace PaymentGatewayDemo.Persistance.Migrations
 {
     [DbContext(typeof(BillingDbContext))]
-    [Migration("20241126121630_InitialCreate")]
+    [Migration("20241126134935_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -154,6 +154,10 @@ namespace PaymentGatewayDemo.Persistance.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("CreationDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FriendlyTitle")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Price")

@@ -28,6 +28,7 @@ export default function ProductsTable() {
             <Table className="w-full border rounded-md">
               <TableHeader>
                 <TableRow>
+                  <TableHead>#</TableHead>
                   {Object.keys(data[key][0]).map((column) => (
                     <TableHead key={column} className="capitalize">
                       {column}
@@ -38,6 +39,9 @@ export default function ProductsTable() {
               <TableBody>
                 {data[key].map((row: Billing, rowIndex: number) => (
                   <TableRow key={rowIndex}>
+                    <TableCell className="whitespace-nowrap">
+                      {rowIndex + 1}
+                    </TableCell>
                     {Object.values(row).map((cell, cellIndex) => (
                       <TableCell key={cellIndex} className="whitespace-nowrap">
                         {cell}
