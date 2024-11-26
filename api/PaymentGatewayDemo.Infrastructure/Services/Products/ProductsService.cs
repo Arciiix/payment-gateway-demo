@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PaymentGatewayDemo.Application.DTOs.Billing.Responses;
 using PaymentGatewayDemo.Application.Services.Products;
+using PaymentGatewayDemo.Application.TPay.Models;
 using PaymentGatewayDemo.Domain.Errors;
 using PaymentGatewayDemo.Domain.Errors.Products;
 using PaymentGatewayDemo.Domain.Models;
@@ -31,7 +32,7 @@ public class ProductsService : IProductsService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<ProductResponse>> GetProductsForUser(string userId)
+    public async Task<List<ProductResponse>> GetProductsForUser(string userId, bool forceNew = false)
     {
         var products = await GetProducts(userId);
         var productResponses = new List<ProductResponse>();
@@ -40,28 +41,46 @@ public class ProductsService : IProductsService
         foreach (var product in products)
             if (product.TransactionId != null)
             {
-                var transactionStatus = await _paymentsService.GetTransactionStatus(product.TransactionId);
-
-                if ((transactionStatus?.Status is not null && transactionStatus.Status != product.TransactionStatus) ||
-                    (!product.OwnsProduct && transactionStatus.Status == "correct") ||
-                    (product.OwnsProduct && transactionStatus.Status != "correct"))
+                if (forceNew)
                 {
-                    product.TransactionStatus = transactionStatus.Status;
-                    product.OwnsProduct = transactionStatus.Status == "correct";
-                    await UpdateProduct(product);
+                    var transactionStatus = await _paymentsService.GetTransactionStatus(product.TransactionId);
+
+                    if ((transactionStatus?.Status is not null &&
+                         transactionStatus.Status != product.TransactionStatus) ||
+                        (!product.OwnsProduct && transactionStatus.Status == "correct") ||
+                        (product.OwnsProduct && transactionStatus.Status != "correct"))
+                    {
+                        product.TransactionStatus = transactionStatus.Status;
+                        product.OwnsProduct = transactionStatus.Status == "correct";
+                        await UpdateProduct(product);
+                    }
+
+                    productResponses.Add(new ProductResponse
+                    {
+                        Id = product.Id.ToString(),
+                        ProductId = product.ProductId,
+                        Title = product.Title,
+                        Description = product.Description,
+                        Price = product.Price,
+                        OwnsProduct = product.TransactionStatus == "correct",
+                        PaymentObject = transactionStatus,
+                        PaymentStatus = transactionStatus?.Status ?? "unknown"
+                    });
                 }
-
-                productResponses.Add(new ProductResponse
+                else
                 {
-                    Id = product.Id.ToString(),
-                    ProductId = product.ProductId,
-                    Title = product.Title,
-                    Description = product.Description,
-                    Price = product.Price,
-                    OwnsProduct = product.TransactionStatus == "correct",
-                    PaymentObject = transactionStatus,
-                    PaymentStatus = transactionStatus.Status
-                });
+                    productResponses.Add(new ProductResponse
+                    {
+                        Id = product.Id.ToString(),
+                        ProductId = product.ProductId,
+                        Title = product.Title,
+                        Description = product.Description,
+                        Price = product.Price,
+                        OwnsProduct = product.TransactionStatus == "correct",
+                        PaymentObject = null,
+                        PaymentStatus = product.TransactionStatus ?? "unknown"
+                    });
+                }
             }
             else
             {
@@ -74,7 +93,7 @@ public class ProductsService : IProductsService
                     Price = product.Price,
                     OwnsProduct = false,
                     PaymentObject = null,
-                    PaymentStatus = null
+                    PaymentStatus = "no payment"
                 });
             }
 

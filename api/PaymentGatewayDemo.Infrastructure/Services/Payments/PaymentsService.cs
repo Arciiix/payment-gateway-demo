@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PaymentGatewayDemo.Application.TPay.Models;
 using PaymentGatewayDemo.Domain.Entities.Configuration;
 
 namespace PaymentGatewayDemo.Infrastructure.Services.Payments;
@@ -11,7 +12,7 @@ public class PaymentsService
     private readonly TPayConfiguration _configuration;
     private readonly ILogger<PaymentsService> _logger;
 
-    public TToken? Token;
+    private TToken? token;
 
     public PaymentsService(ITPayApi api, IOptions<GlobalConfiguration> config, ILogger<PaymentsService> logger)
     {
@@ -53,14 +54,13 @@ public class PaymentsService
         var response = await _api.RefundTransaction(transactionId, await GetAuthorization()).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
-        {
-            _logger.LogError("Failed to refund transaction: {StatusCode} - {Content}", response.StatusCode, response.Content);
-        }
+            _logger.LogError("Failed to refund transaction: {StatusCode} - {Content}", response.StatusCode,
+                response.Content);
     }
 
     private async Task<string> GetAuthorization()
     {
-        if (Token != null && Token.expires > DateTime.Now) return "Bearer " + Token.token;
+        if (token != null && token.expires > DateTime.Now) return "Bearer " + token.token;
 
         var authorized = await Authorize();
         return "Bearer " + authorized.token;
@@ -84,8 +84,8 @@ public class PaymentsService
         }
 
 
-        Token = new TToken(response.Content.AccessToken, DateTime.Now.AddSeconds(response.Content.ExpiresIn));
-        return Token;
+        token = new TToken(response.Content.AccessToken, DateTime.Now.AddSeconds(response.Content.ExpiresIn));
+        return token;
     }
 
     public record TToken(string token, DateTime expires);

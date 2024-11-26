@@ -1,3 +1,4 @@
+using PaymentGatewayDemo.Application.TPay.Models;
 using Refit;
 
 namespace PaymentGatewayDemo.Infrastructure.Services.Payments;

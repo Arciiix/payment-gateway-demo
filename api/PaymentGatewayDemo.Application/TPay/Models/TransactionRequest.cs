@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace PaymentGatewayDemo.Infrastructure.Services.Payments;
+namespace PaymentGatewayDemo.Application.TPay.Models;
 
 public class TransactionRequest
 {

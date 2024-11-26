@@ -1,13 +1,10 @@
-import fetchProducts from "@/services/product/fetchProducts";
+import { productsQuery } from "@/queries/products/products";
 import { useQuery } from "@tanstack/react-query";
 import Product from "./Product";
 import ProductSkeleton from "./ProductSkeleton";
 
 export default function Products() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
-  });
+  const { data, isLoading } = useQuery(productsQuery);
   console.log(data);
   if (isLoading) {
     return (

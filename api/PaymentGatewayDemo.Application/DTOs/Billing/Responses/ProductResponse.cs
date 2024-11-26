@@ -1,3 +1,5 @@
+using PaymentGatewayDemo.Application.TPay.Models;
+
 namespace PaymentGatewayDemo.Application.DTOs.Billing.Responses;
 
 public class ProductResponse
@@ -11,7 +13,5 @@ public class ProductResponse
     public string PaymentStatus { get; set; }
     public bool OwnsProduct { get; set; }
 
-    // Using object type for paymentObject since its type is unknown
-    // DEV
-    public object PaymentObject { get; set; }
+    public TransactionResponse? PaymentObject { get; set; }
 }

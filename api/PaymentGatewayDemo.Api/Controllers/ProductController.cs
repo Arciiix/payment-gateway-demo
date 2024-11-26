@@ -31,8 +31,18 @@ public class ProductController : ControllerBase
     [Authorize]
     public async Task<List<ProductResponse>> GetProducts()
     {
+        // / - returns the data that is stored in the database without any external requests to the external payment gateway API
         var userId = _authService.GetUserIdFromRequest(User);
-        return await _productsService.GetProductsForUser(userId);
+        return await _productsService.GetProductsForUser(userId, false);
+    }
+
+    [HttpGet("new")]
+    [Authorize]
+    public async Task<List<ProductResponse>> GetProductsRefreshed()
+    {
+        // /new - returns the possible latest data - fetches the external payment gateway API
+        var userId = _authService.GetUserIdFromRequest(User);
+        return await _productsService.GetProductsForUser(userId, true);
     }
 
     [HttpPost("{productId}/buy")]

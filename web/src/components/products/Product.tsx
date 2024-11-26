@@ -77,23 +77,25 @@ export default function Product({
         </div>
       </CardHeader>
       <CardContent>
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="item-1">
-            <AccordionTrigger>Payment details</AccordionTrigger>
-            <AccordionContent>
-              <code>
-                <pre>{JSON.stringify(paymentObject, null, 2)}</pre>
-              </code>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        {paymentObject ? (
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>Payment details</AccordionTrigger>
+              <AccordionContent>
+                <code>
+                  <pre>{JSON.stringify(paymentObject, null, 2)}</pre>
+                </code>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        ) : null}
 
         <div className="flex flex-col space-y-4 mt-6 text-lg text-white">
           <div className="flex items-center">
             <Circle
               className={`mr-1 h-4 w-4 ${ownsProduct ? "fill-green-400 text-green-400" : "fill-gray-700 text-gray-700"}`}
             />
-            {paymentStatus ?? "no data"}
+            {paymentStatus ?? "no payment"}
           </div>
           {ownsProduct ? (
             <Button onClick={() => refund({ id })} disabled={isRefunding}>

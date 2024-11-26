@@ -15,6 +15,9 @@ import { Button } from "../ui/button";
 import logOutUser from "@/services/auth/logOutUser";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
+import { RefreshCwIcon } from "lucide-react";
+import fetchProductsRefreshed from "@/services/product/fetchProductsRefreshed";
+import { productsQuery } from "@/queries/products/products";
 
 export function NavUser() {
   const { data: user } = useQuery(userQuery);
@@ -22,13 +25,20 @@ export function NavUser() {
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
-  const { mutate: logOut, isPending } = useMutation({
+  const { mutate: logOut, isPending: isPendingLogOut } = useMutation({
     mutationFn: logOutUser,
     onSuccess: () => {
       navigate({ to: "/auth/login" });
       queryClient.setQueryData(userQuery.queryKey, null);
 
       toast.success("Logged out!");
+    },
+  });
+
+  const { mutate: refreshData, isPending: isPendingData } = useMutation({
+    mutationFn: fetchProductsRefreshed,
+    onSuccess: (data) => {
+      queryClient.setQueryData(productsQuery.queryKey, data);
     },
   });
 
@@ -51,7 +61,14 @@ export function NavUser() {
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logOut()} disabled={isPending}>
+        <DropdownMenuItem
+          onClick={() => refreshData()}
+          disabled={isPendingData}
+        >
+          <RefreshCwIcon /> Refresh data
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => logOut()} disabled={isPendingLogOut}>
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
