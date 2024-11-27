@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaymentGatewayDemo.Application.TPay.Models;
 using PaymentGatewayDemo.Domain.Entities.Configuration;
+using PaymentGatewayDemo.Domain.Errors;
+using PaymentGatewayDemo.Domain.Errors.Payment;
+using PaymentGatewayDemo.Domain.Extensions;
 using PaymentGatewayDemo.Persistance;
 
 namespace PaymentGatewayDemo.Infrastructure.Services.Payments;
@@ -27,7 +30,7 @@ public class PaymentsService
         _configuration = config.Value.TPayConfiguration;
     }
 
-    public async Task<TransactionResponse?> InitializePaymentAsync(TransactionRequest request)
+    public async Task<Result<TransactionResponse?, DomainError>> InitializePaymentAsync(TransactionRequest request)
     {
         var token = await GetAuthorization();
         var response = await _api.CreateTransaction(request, token).ConfigureAwait(false);
@@ -36,7 +39,7 @@ public class PaymentsService
         {
             _logger.LogError("Payment service failed to initialize a new transaction: {StatusCode}: {ErrorResponse}",
                 response.StatusCode, response.Content);
-            return null;
+            return new PaymentError();
         }
 
         return response.Content;
@@ -55,13 +58,18 @@ public class PaymentsService
         return response.Content;
     }
 
-    public async Task RefundTransactionAsync(string transactionId)
+    public async Task<Result<string, DomainError>> RefundTransaction(string transactionId)
     {
         var response = await _api.RefundTransaction(transactionId, await GetAuthorization()).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
+        {
             _logger.LogError("Failed to refund transaction: {StatusCode} - {Content}", response.StatusCode,
                 response.Content);
+            return new PaymentError();
+        }
+
+        return "OK";
     }
 
     private async Task<string> GetAuthorization()

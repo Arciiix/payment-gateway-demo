@@ -80,7 +80,7 @@ export default function Product({
   };
 
   return (
-    <Card className={`w-max ${ownsProduct ? "border-green-300" : ""}`}>
+    <Card className={`w-max ${ownsProduct ? "border-green-300" : ""} m-4`}>
       <CardHeader className="gap-4 space-y-0">
         <div className="space-y-1">
           <CardTitle className="flex flex-col space-y-2">

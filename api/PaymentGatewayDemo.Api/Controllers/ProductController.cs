@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PaymentGatewayDemo.Application.DTOs.Billing.Responses;
+using PaymentGatewayDemo.Application.DTOs.Product.Requests;
 using PaymentGatewayDemo.Application.Services.Auth;
 using PaymentGatewayDemo.Application.Services.Products;
 using PaymentGatewayDemo.Domain.Errors;
 using PaymentGatewayDemo.Domain.Errors.Auth;
 using PaymentGatewayDemo.Domain.Models;
-using PaymentGatewayDemo.Infrastructure.Services.Payments;
 
 namespace PaymentGatewayDemo.Api.Controllers;
 
@@ -19,8 +18,7 @@ public class ProductController : ControllerBase
     private readonly IProductsService _productsService;
 
 
-    public ProductController(PaymentsService paymentsService, IProductsService productsService,
-        UserManager<User> userManager, IAuthService authService)
+    public ProductController(IProductsService productsService, IAuthService authService)
     {
         _productsService = productsService;
         _authService = authService;
@@ -45,6 +43,14 @@ public class ProductController : ControllerBase
         return await _productsService.GetProductsForUser(userId, true);
     }
 
+    [HttpPost]
+    [Authorize]
+    public async Task<ProductResponse> AddProduct(AddProduct product)
+    {
+        var userId = _authService.GetUserIdFromRequest(User);
+        return await _productsService.AddProduct(product, userId);
+    }
+
     [HttpPost("{productId}/buy")]
     [Authorize]
     public async Task<ActionResult> BuyProduct(string productId)
@@ -52,12 +58,11 @@ public class ProductController : ControllerBase
         var user = await _authService.GetUserFromRequest(User);
         if (!user.IsOk) throw new DomainException(new UserNotFoundError());
 
-        var url = await _productsService.BuyProduct(user.Value, productId);
+        var response = await _productsService.BuyProduct(user.Value, productId);
 
-        return Ok(new
-        {
-            Url = url
-        });
+        return response.Match(
+            success => Ok(new { Url = success }),
+            failure => new HttpErrorResponse(StatusCodes.Status500InternalServerError, failure).ToActionResult());
     }
 
     [HttpPost("{productId}/refund")]
@@ -66,9 +71,11 @@ public class ProductController : ControllerBase
     {
         var userId = _authService.GetUserIdFromRequest(User);
 
-        await _productsService.RefundProduct(userId, productId);
+        var result = await _productsService.RefundProduct(userId, productId);
 
-        return Ok();
+        return result.Match(
+            success => Ok(),
+            failure => new HttpErrorResponse(StatusCodes.Status500InternalServerError, failure).ToActionResult());
     }
 
     [HttpGet("billings")]

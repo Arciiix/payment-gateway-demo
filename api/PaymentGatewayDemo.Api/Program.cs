@@ -32,6 +32,13 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.Use((context, next) =>
+{
+    context.Request
+        .EnableBuffering();
+    return next();
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

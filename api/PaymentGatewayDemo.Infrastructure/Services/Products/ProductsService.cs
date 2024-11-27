@@ -1,9 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using PaymentGatewayDemo.Application.DTOs.Billing.Responses;
+using PaymentGatewayDemo.Application.DTOs.Product.Requests;
 using PaymentGatewayDemo.Application.Services.Products;
 using PaymentGatewayDemo.Application.TPay.Models;
+using PaymentGatewayDemo.Domain.Entities.Configuration;
 using PaymentGatewayDemo.Domain.Errors;
 using PaymentGatewayDemo.Domain.Errors.Products;
+using PaymentGatewayDemo.Domain.Extensions;
 using PaymentGatewayDemo.Domain.Models;
 using PaymentGatewayDemo.Infrastructure.Services.Payments;
 using PaymentGatewayDemo.Persistance;
@@ -14,11 +18,14 @@ public class ProductsService : IProductsService
 {
     private readonly BillingDbContext _context;
     private readonly PaymentsService _paymentsService;
+    private readonly TPayConfiguration _tpayConfiguration;
 
-    public ProductsService(BillingDbContext context, PaymentsService paymentsService)
+    public ProductsService(BillingDbContext context, PaymentsService paymentsService,
+        IOptions<GlobalConfiguration> config)
     {
         _context = context;
         _paymentsService = paymentsService;
+        _tpayConfiguration = config.Value.TPayConfiguration;
     }
 
     public Task<List<Product>> GetProducts(string userId)
@@ -110,16 +117,21 @@ public class ProductsService : IProductsService
         return productResponses;
     }
 
-    public async Task RefundProduct(string userId, string productId)
+    public async Task<Result<string, DomainError>> RefundProduct(string userId, string productId)
     {
         var product = await _context.Products.FirstAsync(e => e.UserId == userId && e.ProductId == productId);
 
-        if (product is null || !product.OwnsProduct) throw new DomainException(new DoesntOwnProductError());
-        await _paymentsService.RefundTransactionAsync(product.TransactionId);
+        if (product is null || !product.OwnsProduct) return new DoesntOwnProductError();
+        var result = await _paymentsService.RefundTransaction(product.TransactionId);
+
+        if (!result.IsOk) return result.Error;
+
         product.OwnsProduct = false;
         product.TransactionStatus = "refunded";
 
         await UpdateProduct(product);
+
+        return "OK";
     }
 
     public async Task<Dictionary<string, List<Billing>>> GetBillingsForProducts(string userId)
@@ -143,7 +155,26 @@ public class ProductsService : IProductsService
         return billings;
     }
 
-    public async Task<string> BuyProduct(User user, string productId)
+    public async Task<ProductResponse> AddProduct(AddProduct product, string userId)
+    {
+        var newProduct = await _context.Products.AddAsync(new Product
+        {
+            UserId = userId,
+            ProductId = Guid.NewGuid().ToString(),
+            Title = product.Title,
+            Description = product.Description,
+            Price = (int)Math.Floor(product.Price * 100),
+            OwnsProduct = false,
+            TransactionStatus = null,
+            TransactionId = null
+        });
+
+        await _context.SaveChangesAsync();
+
+        return new ProductResponse(newProduct.Entity);
+    }
+
+    public async Task<Result<string, DomainError>> BuyProduct(User user, string productId)
     {
         var product = await _context.Products.FirstAsync(e => e.UserId == user.Id && e.ProductId == productId);
 
@@ -151,7 +182,7 @@ public class ProductsService : IProductsService
         if (product.OwnsProduct) throw new DomainException(new AlreadyOwnsProductError());
 
 
-        var response = await _paymentsService.InitializePaymentAsync(new TransactionRequest
+        var responsePayment = await _paymentsService.InitializePaymentAsync(new TransactionRequest
         {
             Amount = (decimal)product.Price / 100,
             Description = product.Title,
@@ -165,16 +196,18 @@ public class ProductsService : IProductsService
                 Notification = new Notification
                 {
                     Email = user.Email,
-                    Url = "NGROK/api/paymentNotifications" // TODO DEV
+                    Url = _tpayConfiguration.CallbackUrl
                 },
                 PayerUrls = new PayerUrls
                 {
-                    // TODO: DEV
-                    Success = new Uri("http://localhost:5238/payment/success"),
-                    Error = new Uri("http://localhost:5238/payment/error")
+                    Success = new Uri(_tpayConfiguration.RedirectUrlSuccess),
+                    Error = new Uri(_tpayConfiguration.RedirectUrlFailure)
                 }
             }
         });
+
+        if (!responsePayment.IsOk) return responsePayment.Error;
+        var response = responsePayment.Value;
 
         product.TransactionStatus = "init";
         product.TransactionId = response.TransactionId;

@@ -17,7 +17,7 @@ export default function Products() {
     );
   }
   return (
-    <div className="flex gap-5">
+    <div className="grid grid-cols-1 lg:grid-cols-2 w-max mx-auto">
       {data?.map((e) => {
         return <Product {...e} key={e.id} />;
       })}

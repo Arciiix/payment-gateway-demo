@@ -2,6 +2,7 @@ import { NavUser } from "@/components/blocks/NavUser";
 import Products from "@/components/products/Products";
 import BillingTable from "@/components/billing/BillingTable";
 import { createLazyFileRoute } from "@tanstack/react-router";
+import { CreateProduct } from "@/components/products/CreateProduct";
 
 export const Route = createLazyFileRoute("/_authenticated/")({
   component: RouteComponent,
@@ -19,10 +20,12 @@ function RouteComponent() {
         </div>
         <div className="flex items-center space-x-2">
           <NavUser />
+          <CreateProduct />
         </div>
       </div>
 
       <Products />
+
       <BillingTable />
     </div>
   );
