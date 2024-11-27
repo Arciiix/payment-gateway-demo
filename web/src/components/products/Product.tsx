@@ -28,7 +28,7 @@ export type Product = {
   paymentStatus: string;
   ownsProduct: boolean;
 
-  paymentObject: unknown; // DEV
+  paymentObject: unknown; // TODO: Define its type
 };
 
 export default function Product({
